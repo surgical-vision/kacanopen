@@ -48,6 +48,13 @@ namespace kaco {
 					}
 				},
 				{
+					"disable_operation",
+					[](Device &device, const Value &) -> Value {
+						device.set_entry("controlword", (uint16_t) 0x0006); // shutdown
+						return Value(); // invalid value (return value not needed)
+					}
+				},
+				{
 					"set_controlword_flag",
 					[](Device& device,const Value& flag_name) -> Value {
 						DEBUG_LOG("Set controlword flag "<<flag_name);
@@ -76,7 +83,45 @@ namespace kaco {
 						device.execute("unset_controlword_flag","controlword_pp_new_set_point");
 						return Value();
 					}
-				}
+				},
+				{
+					"set_target_velocity",
+					[](Device& device,const Value& target_velocity) -> Value {
+						DEBUG_LOG("Set target vel to "<<target_velocity);
+						device.set_entry("Vl target velocity",target_velocity);
+						device.execute("set_controlword_flag","controlword_vl_rfg_enable");
+						device.execute("set_controlword_flag","controlword_vl_rfg_unlock");
+						device.execute("unset_controlword_flag","controlword_vl_rfg_enable");
+						device.execute("unset_controlword_flag","controlword_vl_rfg_unlock");
+						return Value();
+					}
+				},
+				{
+					"set_motor_drive_submode_select",
+						[](Device& device,const Value& status) -> Value {
+						DEBUG_LOG("Motor drive submode set as "<<status);
+						device.set_entry("Motor drive submode select", status);
+						return Value();
+					}
+				},
+				{
+					"set_motor_drive_sensor_display_open_loop",
+						[](Device& device,const Value& status) -> Value {
+						DEBUG_LOG("Motor drive sensor display open loop set as "<<status);
+						device.set_entry("Motor drive sensor display open loop/position", status);
+						device.set_entry("Motor drive sensor display open loop/velocity", status);
+						return Value();
+					}
+				},
+				{
+					"set_motor_drive_sensor_display_closed_loop",
+						[](Device& device,const Value& status) -> Value {
+						DEBUG_LOG("Motor drive sensor display closed loop set as "<<status);
+						device.set_entry("Motor drive sensor display closed loop/position", status);
+						device.set_entry("Motor drive sensor display closed loop/velocity", status);
+						return Value();
+					}
+				},
 			}
 		}
 	};
@@ -155,7 +200,17 @@ namespace kaco {
 				{ "statusword_hm_homing_error",		static_cast<uint16_t>(1<<13) },
 				
 				// status word flags interpolated position mode specific
-				{ "statusword_ip_ip_mode_active",	static_cast<uint16_t>(1<<12) }
+				{ "statusword_ip_ip_mode_active",	static_cast<uint16_t>(1<<12) },
+
+				// motor drive submode select
+					{ "motor_drive_select_open_loop", static_cast<uint32_t>(0<<0) },
+					{ "motor_drive_select_closed_loop", static_cast<uint32_t>(1<<0) },
+
+				// motor drive sensor display
+					{ "internal_sets_value", static_cast<int32_t>(-1) },
+					{ "zero_sets_value", static_cast<int32_t>(0) },
+					{ "encoder_sets_value", static_cast<int32_t>(1) },
+
 			}
 		}
 	};
