@@ -1,0 +1,5 @@
+int8 PROFILE_POSITION_MODE = 0
+int8 VELOCITY_MODE = 1
+int8 control_mode
+---
+bool success

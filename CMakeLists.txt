@@ -132,13 +132,26 @@ if (NOT(${NO_ROS}))
 		roscpp
 		std_msgs
 		sensor_msgs
-		# message_generation
+		message_generation
+		message_runtime
 	)
+
+	add_service_files(
+			FILES
+			SetControlMode.srv
+	)
+
+	generate_messages(DEPENDENCIES std_msgs)
 
 	catkin_package(
 		INCLUDE_DIRS core/include master/include ros_bridge/include
 		LIBRARIES ${CAN_DRIVER} kacanopen_core kacanopen_master kacanopen_ros_bridge
 		CATKIN_DEPENDS message_runtime
+	)
+
+	include_directories(
+			include
+			${catkin_INCLUDE_DIRS}
 	)
 
 endif()
